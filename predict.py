@@ -25,42 +25,38 @@ vectorizer = pipeline["vectorizer"]
 loader.stop()
 
 
-def plot_top_medical_features(model, vectorizer, top_n=20):
+def get_top_medical_features(model, vectorizer, top_n=20):
     """
     Maps XGBoost importance scores back to medical keywords
-    and plots the top N influencers.
+    and returns the top N influencers as a dictionary.
+    
+    Returns:
+        dict -> {keyword: gain_score}
     """
-    # 1. Get the importance scores (type='gain')
-    # We use 'gain' because it reflects the importance for prediction accuracy
+    # 1. Get importance scores using gain
     importance_scores = model.get_booster().get_score(importance_type='gain')
     
-    # 2. Get the actual medical words from the vectorizer
+    # 2. Get feature names from TF-IDF
     feature_names = vectorizer.get_feature_names_out()
     
-    # 3. Map scores to words
-    # XGBoost uses 'f0', 'f1' etc. so we map 'f0' -> feature_names[0]
+    # 3. Map 'f0', 'f1', ... to actual medical words
     mapped_importances = {}
     for f_id, score in importance_scores.items():
         index = int(f_id.replace('f', ''))
-        mapped_importances[feature_names[index]] = score
+        if index < len(feature_names):  # safety check
+            mapped_importances[feature_names[index]] = float(score)
 
-    # 4. Create a DataFrame for easy plotting
-    df_imp = pd.DataFrame(
-        list(mapped_importances.items()), 
-        columns=['Medical_Keyword', 'Gain_Score']
-    ).sort_values(by='Gain_Score', ascending=False)
+    # 4. Sort by gain descending and keep top N
+    sorted_items = sorted(
+        mapped_importances.items(),
+        key=lambda x: x[1],
+        reverse=True
+    )[:top_n]
 
+    # 5. Convert to dictionary
+    top_features_dict = dict(sorted_items)
 
-    # 5. Plot the results
-    plt.figure(figsize=(12, 8))
-    plt.barh(df_imp['Medical_Keyword'].head(top_n), df_imp['Gain_Score'].head(top_n), color='skyblue')
-    plt.gca().invert_yaxis()
-    plt.title(f"Top {top_n} Medical Keywords Driving Cancer Classification", fontsize=15)
-    plt.xlabel("Importance (Gain Score)", fontsize=12)
-    plt.ylabel("Clinical Term / Gene", fontsize=12)
-    plt.grid(axis='x', linestyle='--', alpha=0.7)
-    plt.tight_layout()
-    plt.show()
+    return top_features_dict
 
 
 def predict_variant_class(clinical_text):
@@ -80,9 +76,9 @@ def predict_variant_class(clinical_text):
 
     all_preds = get_predictions(probs=probs)
 
-    plot_top_medical_features(model, vectorizer)
+    medical_features = get_top_medical_features(model, vectorizer)
 
-    return predicted_class, confidence, all_preds
+    return predicted_class, confidence, all_preds, medical_features
 
 
 # ---- Example usage ----
@@ -91,8 +87,9 @@ if __name__ == "__main__":
     Patient displays a point mutation in TP53. Studies show this variant leads to a gain of function...
     """
 
-    prediction, confidence, all_preds = predict_variant_class(sample_text)
+    prediction, confidence, all_preds, medical_features = predict_variant_class(sample_text)
 
     print(f"\n🧬 Predicted Genetic Class: {prediction}")
     print(f"Model Top Confidence Score: {confidence:.2f}%")
     print("Class Probabilities:", all_preds)
+    print("Top 20 medical features:", medical_features)
