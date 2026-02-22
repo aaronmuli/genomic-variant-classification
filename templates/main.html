@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Variant Interpretation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+    <header class="app-header">
+        <img src="{{ url_for('static', filename='favicon.png') }}" alt="dna logo" width="60px" height="60px">
+        <div class="container">
+            <h1 class="app-title">
+                <span>Clinical Variant Interpretation System</span>
+            </h1>
+            <p class="subtitle">
+                AI-assisted classification of somatic cancer variants using biomedical literature evidence
+            </p>
+        </div>
+    </header>
+
+
+    <!-- ================= INPUT SECTION ================= -->
+    <section class="card container">
+        <h2>Enter Clinical Variant Text</h2>
+
+        <form action="/" method="post" class="variant-form">
+            <textarea 
+                id="medical-text"
+                name="medical_text" 
+                placeholder="Paste gene, variant, and associated clinical literature text here..."
+                rows="6"
+                required
+            >{{ medical_text }}</textarea>
+
+            <button id="classify-btn" type="submit" class="primary-btn">
+                Classify Variant
+            </button>
+            <div id="loading-overlay">
+                <div class="spinner"></div>
+                <p>Analyzing clinical variant...</p>
+            </div>
+        </form>
+    </section>
+
+
+    <!-- ================= RESULTS SECTION ================= -->
+    {% if predicted_class %}
+    <section class="container results-section">
+
+        <!-- Prediction Summary Card -->
+        <div class="card">
+            <h2>Prediction Summary</h2>
+
+            <div class="prediction-highlight">
+                <div class="prediction-class">
+                    <span class="label">Predicted Class</span>
+                    <span class="value">Class {{ predicted_class }}</span>
+                </div>
+
+                <div class="prediction-confidence">
+                    <span class="label">Confidence</span>
+                    <span class="value">{{ confidence }}%</span>
+                </div>
+            </div>
+
+            <div class="class-description">
+                <h3>Class Interpretation</h3>
+                <p>
+                    The predicted class represents one of nine expert-curated mutation interpretation 
+                    categories derived from oncology literature. These classes reflect differences in 
+                    clinical relevance, therapeutic implications, and evidence strength.
+                </p>
+                <p class="muted">
+                    Note: The numeric class labels (1–9) correspond to anonymized expert categories 
+                    from the MSK research dataset and do not directly map to official clinical guidelines.
+                </p>
+            </div>
+
+            <div class="export-buttons">
+                <a href="/export/json" target="_blank" class="secondary-btn">Download JSON</a>
+                <a href="/export/pdf" target="_blank" class="secondary-btn">Download PDF Report</a>
+            </div>
+        </div>
+
+
+        <!-- Class Probability Graph -->
+        <div class="card">
+            <h2>Class Probability Distribution</h2>
+            <div id="class-probability-graph">
+                {{ class_graph | safe }}
+            </div>
+        </div>
+
+
+        <!-- Feature Importance Graph -->
+        <div class="card">
+            <h2>Top Influential Medical Features</h2>
+            <p class="muted">
+                These keywords contributed most strongly to the model's classification decision 
+                based on TF-IDF feature importance and gradient boosting gain scores.
+            </p>
+
+            <div id="feature-importance-graph">
+                {{ feature_graph | safe }}
+            </div>
+        </div>
+
+    </section>
+    {% endif %}
+
+
+    <!-- ================= DISCLAIMER ================= -->
+    <section class="container disclaimer">
+        <h3>Disclaimer</h3>
+        <p>
+            This system is a research-grade clinical decision support prototype and is not approved 
+            for medical diagnosis or treatment planning. Predictions are generated using machine 
+            learning models trained on publicly available oncology datasets.
+        </p>
+        <p>
+            Results should not be used as a substitute for professional medical judgment. 
+            All variant interpretations must be reviewed by qualified healthcare professionals.
+        </p>
+    </section>
+
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="app-footer">
+        <div class="container">
+            <p>
+                © 2026 Clinical Variant Interpretation System | 
+                Built with Flask, XGBoost, TF-IDF & Explainable AI
+            </p>
+            <p class="muted">
+                For research and educational purposes only.
+            </p>
+        </div>
+    </footer>
+
+
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
+</body>
+</html>
