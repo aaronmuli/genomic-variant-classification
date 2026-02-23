@@ -1,3 +1,14 @@
+---
+title: Genomic Variant Clinical Classification System
+emoji: 🧬
+colorFrom: blue
+colorTo: indigo
+sdk: gradio # or streamlit / docker
+sdk_version: 4.0.0
+app_file: server.py
+pinned: false
+---
+
 # 🧬 Genomic Variant Clinical Classification System
 
 > An end-to-end machine learning pipeline for classifying cancer-associated genomic variants using clinical evidence text.
