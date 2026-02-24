@@ -153,6 +153,7 @@ body {
 #class-probability-graph,
 #feature-importance-graph {
     width: 100%;
+    max-width: 100%;
     overflow-x: auto;
 }
 
