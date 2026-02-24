@@ -1,6 +1,8 @@
 import plotly.graph_objects as go
 import plotly.io as pio
 import io
+import matplotlib.pyplot as plt
+from io import BytesIO
 
 
 def generate_bar_graph_html(data, graph_type="auto", title=None):
@@ -95,41 +97,26 @@ def generate_bar_graph_html(data, graph_type="auto", title=None):
 
 
 def generate_bar_graph_image(data, graph_type="class"):
+    labels = []
+    values = []
 
-    if not data:
-        return None
-
-    # --- CLASS PROBABILITIES ---
     if graph_type == "class":
-
-        # data is list of dicts
-        labels = [f"Class {item['class']}" for item in data]
-        values = [item["probability"] for item in data]
-
-        title = "Class Probability Distribution"
-
-    # --- FEATURE IMPORTANCE ---
-    elif graph_type == "features":
-        # data is dict
-        labels = list(data.keys())
-        values = list(data.values())
-        title = "Top Influential Medical Features"
-
+        for item in data:
+            labels.append(f"Class {item['class']}")
+            values.append(item['confidence'])
     else:
-        return None
+        for k, v in data.items():
+            labels.append(k)
+            values.append(v)
 
-    fig = go.Figure(
-        data=[go.Bar(x=labels, y=values)]
-    )
+    plt.figure()
+    plt.bar(labels, values)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
 
-    fig.update_layout(
-        title=title,
-        template="plotly_white",
-        height=400,
-        width=700,
-        xaxis_title="Category",
-        yaxis_title="Probability" if graph_type == "class" else "Importance Score"
-    )
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+    plt.close()
 
-    img_bytes = fig.to_image(format="png")
-    return io.BytesIO(img_bytes)
+    return buffer

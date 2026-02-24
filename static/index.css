@@ -146,6 +146,10 @@ body {
     font-weight: 600;
 }
 
+.export-buttons {
+    margin-top: 20px;
+}
+
 /* ============================= */
 /* Graph Containers */
 /* ============================= */
@@ -228,6 +232,12 @@ body {
 
     .primary-btn {
         font-size: 0.95rem;
+    }
+
+    .export-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
     }
 }
 

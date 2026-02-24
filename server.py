@@ -84,7 +84,9 @@ def export_pdf():
     elements.append(Spacer(1, 0.3 * inch))
 
     elements.append(Paragraph(f"<b>Medical Text:</b> {medical_text}", styles["Normal"]))
+    elements.append(Spacer(1, 0.1 * inch))
     elements.append(Paragraph(f"<b>Predicted Class:</b> {predicted_class}", styles["Normal"]))
+    elements.append(Spacer(1, 0.1 * inch))
     elements.append(Paragraph(f"<b>Confidence:</b> {confidence:.2f}%", styles["Normal"]))
     elements.append(Spacer(1, 0.3 * inch))
 
