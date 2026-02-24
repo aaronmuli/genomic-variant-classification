@@ -51,7 +51,8 @@ def generate_bar_graph_html(data, graph_type="auto", title=None):
             yaxis_title="Predicted Class",
             yaxis=dict(autorange="reversed"),
             template="plotly_white",
-            height=600
+            autosize=True,
+            margin=dict(l=20, r=20, t=40, b=40)
         )
 
     # -----------------------------------
@@ -77,13 +78,19 @@ def generate_bar_graph_html(data, graph_type="auto", title=None):
             yaxis_title="Medical Term",
             yaxis=dict(autorange="reversed"),
             template="plotly_white",
-            height=700
+            autosize=True,
+            margin=dict(l=20, r=20, t=40, b=40)
         )
 
     else:
         raise ValueError("Unsupported data format.")
 
-    return pio.to_html(fig, full_html=False)
+    return pio.to_html(
+        fig, 
+        full_html=False,
+        include_plotlyjs='cdn',
+        config={"responsive": True}
+    )
 
 
 
